@@ -4,7 +4,7 @@ from config.config import BASE_URL
 from config.monitor_config import SCREENSHOT_MODE
 from services.logger import log
 from services.report import registrar_erro, registrar_sucesso
-from validators.page_validator import validar_html
+from validators.page_validator import validar_pagina
 
 
 def testar_aplicacao(page, app):
@@ -21,20 +21,23 @@ def testar_aplicacao(page, app):
 
         tempo = time.perf_counter() - inicio
 
-        html = page.content()
 
-        ok, erro = validar_html(html)
+        texto =  page.locator("body").inner_text()
 
-        if not ok:
+        resultado = validar_pagina(texto)
+
+        if not resultado["ok"]:
 
             # Sempre registra o erro
-            registrar_erro(app, erro)
+            registrar_erro(
+                app,
+                f'{resultado["erro"]["nome"]}: {resultado["erro"]["linha"]}'
+            )
 
             # Screenshot conforme configuração
             if SCREENSHOT_MODE in ("ERROR", "ALL"):
                 salvar_screenshot(page, app)
-                registrar_sucesso(app)
-            log(f"[ERRO] {app} ({tempo:.2f}s) -> {erro}")
+            log(f"[ERRO] {app} ({tempo:.2f}s) -> {resultado['erro']}")
 
             return False
 
