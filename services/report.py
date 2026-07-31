@@ -1,4 +1,3 @@
-from pathlib import Path
 from services.artifacts import LOG_DIR
 
 ERROS = []
@@ -9,9 +8,12 @@ def registrar_erro(aplicacao, erro):
     """
     Registra uma aplicação que apresentou erro.
     """
+
     ERROS.append({
         "aplicacao": aplicacao,
-        "erro": str(erro)
+        "categoria": erro["categoria"],
+        "tipo": erro["nome"],
+        "mensagem": erro["mensagem"]
     })
 
 
@@ -19,6 +21,7 @@ def registrar_sucesso(aplicacao):
     """
     Registra uma aplicação validada com sucesso.
     """
+
     SUCESSOS.append(aplicacao)
 
 
@@ -39,9 +42,7 @@ def salvar_relatorio():
 
         f.write(f"Total de aplicações : {total}\n")
         f.write(f"Sucesso             : {len(SUCESSOS)}\n")
-        f.write(f"Erros               : {len(ERROS)}\n")
-
-        f.write("\n")
+        f.write(f"Erros               : {len(ERROS)}\n\n")
 
         if not ERROS:
 
@@ -54,5 +55,8 @@ def salvar_relatorio():
 
         for item in ERROS:
 
-            f.write(f"{item['aplicacao']}\n")
-            f.write(f"    Erro: {item['erro']}\n\n")
+            f.write(f"Aplicação : {item['aplicacao']}\n")
+            f.write(f"Categoria : {item['categoria']}\n")
+            f.write(f"Tipo      : {item['tipo']}\n")
+            f.write(f"Mensagem  : {item['mensagem']}\n")
+            f.write("-" * 60 + "\n")

@@ -25,19 +25,22 @@ def testar_aplicacao(page, app):
         texto =  page.locator("body").inner_text()
 
         resultado = validar_pagina(texto)
+        erro = resultado["erro"]
 
         if not resultado["ok"]:
 
             # Sempre registra o erro
             registrar_erro(
                 app,
-                f'{resultado["erro"]["nome"]}: {resultado["erro"]["linha"]}'
+                resultado["erro"]
             )
 
             # Screenshot conforme configuração
             if SCREENSHOT_MODE in ("ERROR", "ALL"):
                 salvar_screenshot(page, app)
-            log(f"[ERRO] {app} ({tempo:.2f}s) -> {resultado['erro']}")
+                log(f"[ERRO] {app} ({tempo:.2f}s)")
+                log(f"Categoria : {erro['categoria']}")
+                log(f"Mensagem  : {erro['mensagem']}")
 
             return False
 
