@@ -6,7 +6,7 @@ O projeto realiza o login no ambiente, identifica as aplicações disponíveis, 
 
 ---
 
-## ✨ Funcionalidades
+##  Funcionalidades
 
 - Login automático no ScriptCase
 - Descoberta automática das aplicações
@@ -19,7 +19,7 @@ O projeto realiza o login no ambiente, identifica as aplicações disponíveis, 
 
 ---
 
-## 📁 Estrutura do Projeto
+##  Estrutura do Projeto
 
 ```text
 scriptcase-monitor/
@@ -65,7 +65,7 @@ scriptcase-monitor/
 
 ---
 
-## ⚙️ Configuração
+##  Configuração
 
 ### config.ini
 
@@ -108,7 +108,7 @@ MODE=ERROR
 
 ---
 
-## 🚀 Instalação
+##  Instalação
 
 Clone o repositório:
 
@@ -156,7 +156,7 @@ playwright install
 
 ---
 
-## ▶️ Execução
+##  Execução
 
 Execute o monitor utilizando:
 
@@ -166,7 +166,7 @@ python main.py
 
 ---
 
-## 📄 Saída da Execução
+##  Saída da Execução
 
 Ao término da execução serão gerados:
 
@@ -176,7 +176,7 @@ Ao término da execução serão gerados:
 
 ---
 
-## 🛠️ Tecnologias
+##  Tecnologias
 
 - Python 3
 - Playwright
@@ -185,7 +185,7 @@ Ao término da execução serão gerados:
 
 ---
 
-## 📌 Roadmap
+##  Roadmap
 
 - [x] Login automático
 - [x] Descoberta das aplicações
@@ -200,6 +200,6 @@ Ao término da execução serão gerados:
 
 ---
 
-## 📄 Licença
+##  Licença
 
 Este projeto está licenciado sob a licença MIT.
