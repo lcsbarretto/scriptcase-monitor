@@ -1,0 +1,65 @@
+[09:30:50] ============================================================
+[09:30:50] INICIANDO SCRIPTCASE MONITOR
+[09:30:50] ============================================================
+[09:30:52] Acessando https://localhost/telematica/suricato.exe
+[09:30:56] Login realizado com sucesso.
+[09:30:57] Foram encontradas 25 aplicações.
+
+[09:30:57] Abrindo: https://localhost/suricato/app/cnsAcessoColaborador/cnsAcessoColaborador.php
+[09:30:58] [ OK ] cnsAcessoColaborador (0.95s)
+[09:30:58] Abrindo: https://localhost/suricato/app/cnsAcessosDosColaboradores/cnsAcessosDosColaboradores.php
+[09:30:59] [ OK ] cnsAcessosDosColaboradores (1.04s)
+[09:30:59] Abrindo: https://localhost/suricato/app/cnsAgendVeicu/cnsAgendVeicu.php
+[09:31:00] [ OK ] cnsAgendVeicu (1.02s)
+[09:31:00] Abrindo: https://localhost/suricato/app/cnsAgendamentosVeiculos/cnsAgendamentosVeiculos.php
+[09:31:01] [ OK ] cnsAgendamentosVeiculos (0.88s)
+[09:31:01] Abrindo: https://localhost/suricato/app/cnsAlarmesTratados/cnsAlarmesTratados.php
+[09:31:02] [ OK ] cnsAlarmesTratados (1.06s)
+[09:31:02] Abrindo: https://localhost/suricato/app/cnsAmbiente/cnsAmbiente.php
+[09:31:03] [ OK ] cnsAmbiente (0.75s)
+[09:31:03] Abrindo: https://localhost/suricato/app/cnsAplicacoes/cnsAplicacoes.php
+[09:31:04] [ OK ] cnsAplicacoes (0.89s)
+[09:31:04] Abrindo: https://localhost/suricato/app/cnsAprovacaoAgendamentoFrota/cnsAprovacaoAgendamentoFrota.php
+[09:31:05] [ OK ] cnsAprovacaoAgendamentoFrota (0.98s)
+[09:31:05] Abrindo: https://localhost/suricato/app/cnsAutorizacaoSaida/cnsAutorizacaoSaida.php
+[09:31:07] [ OK ] cnsAutorizacaoSaida (1.30s)
+[09:31:07] Abrindo: https://localhost/suricato/app/cnsAutorizarAcessoColaboradores/cnsAutorizarAcessoColaboradores.php
+[09:31:08] [ OK ] cnsAutorizarAcessoColaboradores (1.27s)
+[09:31:08] Abrindo: https://localhost/suricato/app/cnsBaixaCracha/cnsBaixaCracha.php
+[09:31:09] [ OK ] cnsBaixaCracha (1.01s)
+[09:31:09] Abrindo: https://localhost/suricato/app/cnsBloqueioCracha/cnsBloqueioCracha.php
+[09:31:10] [ OK ] cnsBloqueioCracha (0.85s)
+[09:31:10] Abrindo: https://localhost/suricato/app/cnsCadastroChave/cnsCadastroChave.php
+[09:31:11] [ OK ] cnsCadastroChave (0.93s)
+[09:31:11] Abrindo: https://localhost/suricato/app/cnsCadastroEPI/cnsCadastroEPI.php
+[09:31:12] [ OK ] cnsCadastroEPI (0.96s)
+[09:31:12] Abrindo: https://localhost/suricato/app/cnsCentralGerenciamento/cnsCentralGerenciamento.php
+[09:31:13] [ OK ] cnsCentralGerenciamento (0.82s)
+[09:31:13] Abrindo: https://localhost/suricato/app/cnsCentrodeCusto/cnsCentrodeCusto.php
+[09:31:14] [ OK ] cnsCentrodeCusto (0.78s)
+[09:31:14] Abrindo: https://localhost/suricato/app/cnsCodinsGrupoRep/cnsCodinsGrupoRep.php
+[09:31:15] [ERRO] cnsCodinsGrupoRep (0.86s) -> SQL Server
+[09:31:15] Abrindo: https://localhost/suricato/app/cnsColabGrupoHoraExtra/cnsColabGrupoHoraExtra.php
+[09:31:16] [ OK ] cnsColabGrupoHoraExtra (0.69s)
+[09:31:16] Abrindo: https://localhost/suricato/app/cnsColabPorEmpresa/cnsColabPorEmpresa.php
+[09:31:17] [ OK ] cnsColabPorEmpresa (0.74s)
+[09:31:17] Abrindo: https://localhost/suricato/app/cnsColaboradorHorarioNR36/cnsColaboradorHorarioNR36.php
+[09:31:18] [ OK ] cnsColaboradorHorarioNR36 (0.96s)
+[09:31:18] Abrindo: https://localhost/suricato/app/cnsColaboradorXMatrizAcesso/cnsColaboradorXMatrizAcesso.php
+[09:31:19] [ OK ] cnsColaboradorXMatrizAcesso (0.79s)
+[09:31:19] Abrindo: https://localhost/suricato/app/cnsColetores/cnsColetores.php
+[09:31:20] [ OK ] cnsColetores (0.86s)
+[09:31:20] Abrindo: https://localhost/suricato/app/cnsColetoresPlanta/cnsColetoresPlanta.php
+[09:31:21] [ OK ] cnsColetoresPlanta (0.76s)
+[09:31:21] Abrindo: https://localhost/suricato/app/cnsColetoresPlantaListas/cnsColetoresPlantaListas.php
+[09:31:21] [ OK ] cnsColetoresPlantaListas (0.75s)
+[09:31:21] Abrindo: https://localhost/suricato/app/cnsColetorescad/cnsColetorescad.php
+[09:31:23] [ OK ] cnsColetorescad (0.93s)
+[09:31:23] 
+[09:31:23] ============================================================
+[09:31:23] RESUMO
+[09:31:23] ============================================================
+[09:31:23] Total : 25
+[09:31:23] OK    : 24
+[09:31:23] Erro  : 1
+[09:31:23] Navegador encerrado.

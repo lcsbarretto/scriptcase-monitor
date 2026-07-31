@@ -1,9 +1,9 @@
-from login import realizar_login
-from scanner import listar_aplicacoes
-from checker import testar_aplicacao
-from logger import log
-from config import APP_PATH
-from report import salvar_relatorio
+from services.login import realizar_login
+from services.scanner import listar_aplicacoes
+from services.checker import testar_aplicacao
+from services.logger import log
+from config.config import APP_PATH
+from services.report import salvar_relatorio
 
 
 def main():
