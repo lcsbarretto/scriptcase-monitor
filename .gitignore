@@ -5,15 +5,18 @@
 __pycache__/
 *.py[cod]
 
-# Arquivos do VS Code
-.vscode/
+# Arquivos de ambiente
+.env
 
-# Logs
+# Logs da aplicação
 logs/
 
-# Screenshots
+# Screenshots da execução
 screenshots/
 
-# Sistema
+# VS Code
+.vscode/
+
+# Sistema operacional
 .DS_Store
 Thumbs.db
