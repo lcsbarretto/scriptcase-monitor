@@ -2,24 +2,26 @@
 
 Monitor automatizado para validação de aplicações ScriptCase utilizando Playwright.
 
-O projeto realiza o login no ambiente, identifica as aplicações disponíveis, executa testes de abertura e registra os resultados da execução, facilitando a identificação de aplicações com problemas após atualizações, deploys ou manutenções.
+O projeto realiza o login no ambiente, identifica automaticamente as aplicações disponíveis, executa testes de abertura e validação das telas, identifica erros conhecidos e gera um relatório técnico da execução, facilitando a validação do sistema após atualizações, deploys e manutenções.
 
 ---
 
-##  Funcionalidades
+# Funcionalidades
 
 - Login automático no ScriptCase
 - Descoberta automática das aplicações
-- Abertura de cada aplicação
-- Validação da página carregada
+- Abertura automática das aplicações
+- Validação do conteúdo carregado
+- Identificação automática de erros conhecidos
+- Extração inteligente das mensagens de erro
 - Captura de screenshots (configurável)
-- Geração de logs
-- Relatório de aplicações com erro
+- Geração de logs da execução
+- Relatório técnico das aplicações com erro
 - Configuração através de arquivos `.ini`
 
 ---
 
-##  Estrutura do Projeto
+# Estrutura do Projeto
 
 ```text
 scriptcase-monitor/
@@ -39,6 +41,7 @@ scriptcase-monitor/
 │   └── scanner.py
 │
 ├── validators/
+│   ├── extractors.py
 │   └── page_validator.py
 │
 ├── utils/
@@ -51,38 +54,76 @@ scriptcase-monitor/
 └── requirements.txt
 ```
 
-### Organização
+---
+
+# Organização
 
 | Diretório | Responsabilidade |
 |-----------|------------------|
 | **config/** | Arquivos de configuração da aplicação e carregamento das configurações. |
-| **services/** | Implementação das regras de negócio, incluindo login, descoberta das aplicações, validação, geração de relatórios, logs e gerenciamento dos artefatos da execução. |
-| **validators/** | Regras responsáveis por validar se uma aplicação foi carregada corretamente. |
-| **utils/** | Utilitários compartilhados entre os módulos, como gerenciamento de caminhos do projeto. |
-| **logs/** | Logs gerados durante cada execução. |
-| **screenshots/** | Capturas de tela geradas durante a validação das aplicações. |
-| **main.py** | Ponto de entrada da aplicação e responsável por orquestrar toda a execução do monitor. |
+| **services/** | Implementação das regras de negócio, incluindo login, descoberta das aplicações, abertura das telas, geração de relatórios, logs e gerenciamento dos artefatos da execução. |
+| **validators/** | Responsável por validar as páginas abertas, identificar erros conhecidos e extrair mensagens detalhadas para o relatório técnico. |
+| **utils/** | Utilitários compartilhados entre os módulos, como gerenciamento dos caminhos da aplicação. |
+| **logs/** | Logs e relatórios gerados durante cada execução. |
+| **screenshots/** | Capturas de tela geradas conforme configuração da execução. |
+| **main.py** | Ponto de entrada responsável por orquestrar toda a execução do monitor. |
 
 ---
 
-##  Configuração
+# Arquitetura da Validação
 
-### config.ini
+O monitor foi desenvolvido utilizando responsabilidades bem definidas, facilitando sua manutenção e evolução.
+
+```text
+Scanner
+    │
+    ▼
+Checker
+    │
+    ▼
+Page Validator
+    │
+    ▼
+Extractors
+    │
+    ▼
+Report
+```
+
+Cada módulo possui uma responsabilidade específica:
+
+- **Scanner** → Descobre automaticamente as aplicações do ScriptCase.
+- **Checker** → Abre cada aplicação utilizando o Playwright.
+- **Page Validator** → Identifica padrões de erro conhecidos.
+- **Extractors** → Extrai mensagens detalhadas para cada categoria de erro.
+- **Report** → Consolida os resultados e gera o relatório técnico da execução.
+
+---
+
+# Configuração
+
+## config.ini
 
 Arquivo responsável pelas configurações de acesso ao ambiente ScriptCase.
 
 Exemplo:
 
 ```ini
-[LOGIN]
-URL=
-USERNAME=
-PASSWORD=
+[SCRIPTCASE]
+URL=https://localhost/scriptcase
+BASE_URL=https://localhost/scriptcase/app
+APP_PATH=C:\NetMake\v9-php81\wwwroot\scriptcase\app
+
+USUARIO=admin
+SENHA=admin
+
+HEADLESS=True
+TIMEOUT=10000
 ```
 
 ---
 
-### monitor.ini
+## monitor.ini
 
 Arquivo responsável pelas configurações da execução.
 
@@ -98,17 +139,31 @@ ONLY_ENABLED=True
 MODE=ERROR
 ```
 
-### Modos de Screenshot
+---
 
-| Valor | Descrição |
-|--------|-----------|
-| `NONE` | Não gera screenshots. |
-| `ERROR` | Gera screenshots apenas em aplicações com erro. |
-| `ALL` | Gera screenshots de todas as aplicações. |
+## Configurações disponíveis
+
+### MONITOR
+
+| Configuração | Descrição |
+|--------------|-----------|
+| MAX_APPS | Limita a quantidade de aplicações testadas. `0` testa todas. |
+| ORDER | Ordem da execução (`ASC` ou `DESC`). |
+| ONLY_ENABLED | Executa apenas aplicações habilitadas. |
 
 ---
 
-##  Instalação
+### SCREENSHOT
+
+| Valor | Descrição |
+|--------|-----------|
+| NONE | Não gera screenshots. |
+| ERROR | Gera screenshots apenas para aplicações com erro. |
+| ALL | Gera screenshots de todas as aplicações. |
+
+---
+
+# Instalação
 
 Clone o repositório:
 
@@ -116,7 +171,7 @@ Clone o repositório:
 git clone <url-do-repositorio>
 ```
 
-Acesse a pasta do projeto:
+Entre na pasta do projeto:
 
 ```bash
 cd scriptcase-monitor
@@ -156,7 +211,7 @@ playwright install
 
 ---
 
-##  Execução
+# Execução
 
 Execute o monitor utilizando:
 
@@ -166,40 +221,96 @@ python main.py
 
 ---
 
-##  Saída da Execução
+# Saída da Execução
 
-Ao término da execução serão gerados:
+Ao término da execução são gerados:
 
-- Logs da execução
+- Log completo da execução
 - Screenshots (conforme configuração)
-- Relatório contendo as aplicações que apresentaram erro
+- Relatório técnico (`erros.txt`)
+
+Exemplo:
+
+```text
+============================================================
+SCRIPTCASE MONITOR
+============================================================
+
+Total de aplicações : 320
+Sucesso             : 318
+Erros               : 2
+
+============================================================
+APLICAÇÕES COM ERRO
+============================================================
+
+Aplicação : cnsEmpresa
+
+Categoria : Erro no SQL
+
+Tipo      : SQL Server
+
+Mensagem:
+Incorrect syntax near ')'.
+
+select *
+from TBEMPRESA
+where (CODIEMPR =)
+
+------------------------------------------------------------
+```
 
 ---
 
-##  Tecnologias
+# Erros Identificados
+
+Atualmente o monitor identifica automaticamente:
+
+- PHP Fatal Error
+- PHP Parse Error
+- Oracle Error
+- SQL Server
+- HTTP 500
+
+A arquitetura permite adicionar facilmente novos validadores e extratores de erro.
+
+---
+
+# Tecnologias
 
 - Python 3
 - Playwright
 - ConfigParser
 - pathlib
+- Git
 
 ---
 
-##  Roadmap
+# Roadmap
+
+## Concluído
 
 - [x] Login automático
-- [x] Descoberta das aplicações
-- [x] Validação automática
+- [x] Descoberta automática das aplicações
+- [x] Abertura automática das telas
+- [x] Validação das aplicações
 - [x] Captura de screenshots
 - [x] Geração de logs
-- [x] Relatório de erros
-- [ ] Relatório HTML
-- [ ] Exportação para JSON
-- [ ] Execução paralela
+- [x] Relatório técnico de erros
+- [x] Arquitetura de extratores de erro
+- [x] Organização do projeto em módulos
+
+## Próximas evoluções
+
+- [ ] Melhorar extração de mensagens SQL Server
+- [ ] Melhorar extração de mensagens Oracle
+- [ ] Extratores específicos para erros PHP
 - [ ] Dashboard de resultados
+- [ ] Comparação entre execuções
+- [ ] Histórico de validações
 
 ---
 
-##  Licença
+# Licença
 
 Este projeto está licenciado sob a licença MIT.
