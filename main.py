@@ -4,6 +4,7 @@ from services.checker import testar_aplicacao
 from services.logger import log
 from config.config import APP_PATH
 from services.report import salvar_relatorio
+from services.context_manager import preparar_contexto
 
 
 def main():
@@ -14,8 +15,11 @@ def main():
 
     # Login
     p, browser, context, page = realizar_login()
+    
 
     try:
+        # Verifica se o contexto está habilitado e prepara as variáveis
+        preparar_contexto(page, context)
 
         # Descobre aplicações
         apps = listar_aplicacoes(APP_PATH)
