@@ -2,21 +2,22 @@ import time
 from services.artifacts import salvar_screenshot
 from config.config import BASE_URL
 from config.monitor_config import SCREENSHOT_MODE
+from services.context_manager import preparar_url
 from services.logger import log
 from services.report import registrar_erro, registrar_sucesso
 from validators.page_validator import validar_pagina
 
-
 def testar_aplicacao(page, app):
 
     url = f"{BASE_URL}/{app}/{app}.php"
+
+    url = preparar_url(url)
 
     log(f"Abrindo: {url}")
 
     inicio = time.perf_counter()
 
     try:
-
         page.goto(url, wait_until="networkidle")
 
         tempo = time.perf_counter() - inicio
