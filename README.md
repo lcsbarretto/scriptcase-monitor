@@ -1,27 +1,57 @@
 # ScriptCase Monitor
 
-Monitor automatizado para validação de aplicações ScriptCase utilizando Playwright.
+Monitor automatizado para validação de aplicações ScriptCase utilizando Python e Playwright.
 
-O projeto realiza o login no ambiente, identifica automaticamente as aplicações disponíveis, executa testes de abertura e validação das telas, identifica erros conhecidos e gera um relatório técnico da execução, facilitando a validação do sistema após atualizações, deploys e manutenções.
+O projeto realiza o login no ambiente, identifica as aplicações disponíveis, executa testes de abertura e valida o conteúdo das páginas procurando erros conhecidos.
+
+O objetivo é facilitar a identificação de aplicações com problemas após atualizações, deploys ou manutenções, gerando logs, screenshots e um relatório consolidado dos erros encontrados.
 
 ---
 
-# Funcionalidades
+## Funcionalidades
 
 - Login automático no ScriptCase
 - Descoberta automática das aplicações
 - Abertura automática das aplicações
-- Validação do conteúdo carregado
-- Identificação automática de erros conhecidos
-- Extração inteligente das mensagens de erro
-- Captura de screenshots (configurável)
-- Geração de logs da execução
-- Relatório técnico das aplicações com erro
+- Validação do conteúdo das páginas
+- Identificação de erros conhecidos
+- Extração da mensagem de erro
+- Extração de mensagens de erros SQL
+- Suporte a erros Oracle
+- Captura de screenshots configurável
+- Geração de logs
+- Relatório consolidado de aplicações com erro
 - Configuração através de arquivos `.ini`
+- Contexto de execução configurável
+- Injeção de variáveis de contexto através de parâmetros de URL
 
 ---
 
-# Estrutura do Projeto
+## Como funciona
+
+O monitor executa as aplicações seguindo o fluxo:
+
+```text
+Login
+  ↓
+Preparação do contexto
+  ↓
+Descoberta das aplicações
+  ↓
+Abertura das aplicações
+  ↓
+Validação da página
+  ↓
+Extração do erro
+  ↓
+Screenshot (quando configurado)
+  ↓
+Relatório
+```
+
+---
+
+## Estrutura do Projeto
 
 ```text
 scriptcase-monitor/
@@ -29,19 +59,21 @@ scriptcase-monitor/
 ├── config/
 │   ├── config.py
 │   ├── monitor_config.py
+│   ├── context_config.py
 │   ├── config.ini
-│   └── monitor.ini
+│   ├── monitor.ini
+│   └── context.ini
 │
 ├── services/
 │   ├── artifacts.py
 │   ├── checker.py
+│   ├── context_manager.py
 │   ├── logger.py
 │   ├── login.py
 │   ├── report.py
 │   └── scanner.py
 │
 ├── validators/
-│   ├── extractors.py
 │   └── page_validator.py
 │
 ├── utils/
@@ -56,76 +88,66 @@ scriptcase-monitor/
 
 ---
 
-# Organização
+## Organização
 
-| Diretório | Responsabilidade |
-|-----------|------------------|
-| **config/** | Arquivos de configuração da aplicação e carregamento das configurações. |
-| **services/** | Implementação das regras de negócio, incluindo login, descoberta das aplicações, abertura das telas, geração de relatórios, logs e gerenciamento dos artefatos da execução. |
-| **validators/** | Responsável por validar as páginas abertas, identificar erros conhecidos e extrair mensagens detalhadas para o relatório técnico. |
-| **utils/** | Utilitários compartilhados entre os módulos, como gerenciamento dos caminhos da aplicação. |
-| **logs/** | Logs e relatórios gerados durante cada execução. |
-| **screenshots/** | Capturas de tela geradas conforme configuração da execução. |
-| **main.py** | Ponto de entrada responsável por orquestrar toda a execução do monitor. |
+| Diretório/Arquivo | Responsabilidade |
+|---|---|
+| **config/** | Configurações da aplicação e carregamento dos arquivos `.ini`. |
+| **services/** | Regras de negócio e serviços responsáveis pela execução do monitor. |
+| **validators/** | Validações realizadas sobre o conteúdo das páginas. |
+| **utils/** | Utilitários compartilhados pelo projeto. |
+| **logs/** | Logs gerados durante cada execução. |
+| **screenshots/** | Capturas de tela das aplicações, conforme configuração. |
+| **main.py** | Ponto de entrada e orquestração da execução. |
 
----
+### Principais serviços
 
-# Arquitetura da Validação
-
-O monitor foi desenvolvido utilizando responsabilidades bem definidas, facilitando sua manutenção e evolução.
-
-```text
-Scanner
-    │
-    ▼
-Checker
-    │
-    ▼
-Page Validator
-    │
-    ▼
-Extractors
-    │
-    ▼
-Report
-```
-
-Cada módulo possui uma responsabilidade específica:
-
-- **Scanner** → Descobre automaticamente as aplicações do ScriptCase.
-- **Checker** → Abre cada aplicação utilizando o Playwright.
-- **Page Validator** → Identifica padrões de erro conhecidos.
-- **Extractors** → Extrai mensagens detalhadas para cada categoria de erro.
-- **Report** → Consolida os resultados e gera o relatório técnico da execução.
+| Serviço | Responsabilidade |
+|---|---|
+| `login.py` | Realiza o login e inicializa o navegador Playwright. |
+| `scanner.py` | Identifica as aplicações disponíveis para teste. |
+| `checker.py` | Abre e executa a validação de cada aplicação. |
+| `context_manager.py` | Prepara o contexto de execução antes dos testes. |
+| `page_validator.py` | Identifica padrões de erro e extrai suas mensagens. |
+| `report.py` | Registra sucessos, erros e gera o relatório. |
+| `logger.py` | Registra os eventos da execução. |
+| `artifacts.py` | Gerencia screenshots e artefatos da execução. |
 
 ---
 
 # Configuração
 
+O projeto utiliza arquivos `.ini` para separar as configurações do ambiente, da execução e do contexto de testes.
+
+---
+
 ## config.ini
 
-Arquivo responsável pelas configurações de acesso ao ambiente ScriptCase.
+Responsável pelas configurações principais do ambiente ScriptCase.
 
 Exemplo:
 
 ```ini
 [SCRIPTCASE]
-URL=https://localhost/scriptcase
-BASE_URL=https://localhost/scriptcase/app
-APP_PATH=C:\NetMake\v9-php81\wwwroot\scriptcase\app
-
-USUARIO=admin
-SENHA=admin
-
+URL=
+APP_PATH=
+BASE_URL=
+USUARIO=
+SENHA=
 HEADLESS=True
 TIMEOUT=10000
+LOG_PATH=logs
+SCREENSHOT_PATH=screenshots
+SCREENSHOT_MODE=ERROR
 ```
+
+> Não versionar credenciais reais no repositório.
 
 ---
 
 ## monitor.ini
 
-Arquivo responsável pelas configurações da execução.
+Responsável pelas configurações da execução do monitor.
 
 Exemplo:
 
@@ -139,27 +161,169 @@ ONLY_ENABLED=True
 MODE=ERROR
 ```
 
----
-
-## Configurações disponíveis
-
-### MONITOR
+### Configurações
 
 | Configuração | Descrição |
-|--------------|-----------|
-| MAX_APPS | Limita a quantidade de aplicações testadas. `0` testa todas. |
-| ORDER | Ordem da execução (`ASC` ou `DESC`). |
-| ONLY_ENABLED | Executa apenas aplicações habilitadas. |
+|---|---|
+| `MAX_APPS=0` | Testa todas as aplicações. |
+| `MAX_APPS=N` | Limita a execução às primeiras `N` aplicações. |
+| `ORDER=ASC` | Ordena as aplicações de forma crescente. |
+| `ONLY_ENABLED=True` | Considera somente aplicações habilitadas. |
+
+### Modos de Screenshot
+
+| Valor | Descrição |
+|---|---|
+| `NONE` | Não gera screenshots. |
+| `ERROR` | Gera screenshots apenas para aplicações com erro. |
+| `ALL` | Gera screenshots de todas as aplicações. |
 
 ---
 
-### SCREENSHOT
+# Contexto de Execução
 
-| Valor | Descrição |
-|--------|-----------|
-| NONE | Não gera screenshots. |
-| ERROR | Gera screenshots apenas para aplicações com erro. |
-| ALL | Gera screenshots de todas as aplicações. |
+Algumas aplicações podem depender de informações previamente carregadas na sessão ou de parâmetros utilizados durante a navegação normal do sistema.
+
+Quando uma aplicação é acessada diretamente, esses valores podem não estar disponíveis, causando erros de execução ou consultas SQL inválidas.
+
+Para esses casos, o monitor possui um contexto de execução configurável.
+
+O contexto permite definir variáveis que serão adicionadas à URL antes da abertura da aplicação.
+
+---
+
+## context.ini
+
+Exemplo:
+
+```ini
+[CONTEXT]
+ENABLED=True
+MODE=URL
+
+[VARIABLES]
+var_codiempr=1
+var_codibene=1
+var_codicolab=1
+```
+
+### Configurações
+
+| Configuração | Descrição |
+|---|---|
+| `ENABLED=False` | Desativa a preparação do contexto. |
+| `ENABLED=True` | Ativa a preparação do contexto. |
+| `MODE=URL` | Adiciona as variáveis como parâmetros da URL. |
+
+As variáveis são configuráveis e não ficam fixas no código do monitor.
+
+Por exemplo:
+
+```ini
+[VARIABLES]
+var_codiempr=15
+var_codibene=8
+var_codicolab=25
+```
+
+pode resultar em uma URL semelhante a:
+
+```text
+https://servidor/app/tela/tela.php?var_codiempr=15&var_codibene=8&var_codicolab=25
+```
+
+Isso permite preparar o ambiente de teste sem alterar o código-fonte.
+
+---
+
+# Validação de Erros
+
+O monitor possui uma lista de padrões de erro conhecidos.
+
+Exemplos:
+
+```text
+PHP Fatal Error
+PHP Parse Error
+Oracle Error
+SQL Server
+HTTP 500
+```
+
+A validação identifica o padrão encontrado e tenta extrair a mensagem correspondente.
+
+Para erros SQL, o extrator pode recuperar mensagens mais completas, por exemplo:
+
+```text
+SQLState: 42000
+Error Code: 102
+Message: [Microsoft][ODBC Driver 17 for SQL Server]
+[SQL Server]Incorrect syntax near ')'.
+```
+
+O objetivo é fornecer informações suficientes para facilitar a investigação sem precisar analisar manualmente cada aplicação.
+
+---
+
+# Relatório
+
+Ao final da execução, o monitor gera um relatório contendo:
+
+```text
+Total de aplicações
+Sucesso
+Erros
+```
+
+Para cada aplicação com erro:
+
+```text
+Aplicação
+Categoria
+Tipo
+Mensagem
+```
+
+Exemplo:
+
+```text
+Aplicação : cnsCodinsGrupoRep
+Categoria : Erro no SQL
+Tipo      : SQL Server
+Mensagem  : SQLState: 42000 Error Code: 102 Message:
+[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]
+Incorrect syntax near ')'.
+```
+
+---
+
+# Logs
+
+Cada execução possui seu próprio diretório de artefatos.
+
+Exemplo:
+
+```text
+logs/
+└── 2026-08-24_14-30-00/
+    └── erros.txt
+```
+
+Isso permite manter os resultados de diferentes execuções separados.
+
+---
+
+# Screenshots
+
+Quando habilitados, os screenshots também são separados por execução:
+
+```text
+screenshots/
+└── 2026-08-24_14-30-00/
+    ├── aplicacao1.png
+    ├── aplicacao2.png
+    └── aplicacao3.png
+```
 
 ---
 
@@ -171,7 +335,7 @@ Clone o repositório:
 git clone <url-do-repositorio>
 ```
 
-Entre na pasta do projeto:
+Acesse a pasta:
 
 ```bash
 cd scriptcase-monitor
@@ -185,13 +349,13 @@ python -m venv .venv
 
 Ative o ambiente virtual.
 
-Windows:
+### Windows
 
 ```powershell
 .venv\Scripts\activate
 ```
 
-Linux/macOS:
+### Linux/macOS
 
 ```bash
 source .venv/bin/activate
@@ -209,11 +373,19 @@ Instale os navegadores do Playwright:
 playwright install
 ```
 
+Configure os arquivos:
+
+```text
+config/config.ini
+config/monitor.ini
+config/context.ini
+```
+
 ---
 
 # Execução
 
-Execute o monitor utilizando:
+Execute o monitor:
 
 ```bash
 python main.py
@@ -223,56 +395,12 @@ python main.py
 
 # Saída da Execução
 
-Ao término da execução são gerados:
+Ao término da execução serão gerados:
 
-- Log completo da execução
-- Screenshots (conforme configuração)
-- Relatório técnico (`erros.txt`)
-
-Exemplo:
-
-```text
-============================================================
-SCRIPTCASE MONITOR
-============================================================
-
-Total de aplicações : 320
-Sucesso             : 318
-Erros               : 2
-
-============================================================
-APLICAÇÕES COM ERRO
-============================================================
-
-Aplicação : cnsEmpresa
-
-Categoria : Erro no SQL
-
-Tipo      : SQL Server
-
-Mensagem:
-Incorrect syntax near ')'.
-
-select *
-from TBEMPRESA
-where (CODIEMPR =)
-
-------------------------------------------------------------
-```
-
----
-
-# Erros Identificados
-
-Atualmente o monitor identifica automaticamente:
-
-- PHP Fatal Error
-- PHP Parse Error
-- Oracle Error
-- SQL Server
-- HTTP 500
-
-A arquitetura permite adicionar facilmente novos validadores e extratores de erro.
+- Logs da execução
+- Screenshots, conforme configuração
+- Relatório de aplicações com erro
+- Mensagens detalhadas dos erros encontrados
 
 ---
 
@@ -282,32 +410,57 @@ A arquitetura permite adicionar facilmente novos validadores e extratores de err
 - Playwright
 - ConfigParser
 - pathlib
-- Git
 
 ---
 
 # Roadmap
 
-## Concluído
+## Monitoramento
 
 - [x] Login automático
-- [x] Descoberta automática das aplicações
-- [x] Abertura automática das telas
-- [x] Validação das aplicações
+- [x] Descoberta das aplicações
+- [x] Validação automática
+- [x] Identificação de erros conhecidos
+- [x] Extração de mensagens de erro
+- [x] Extração de erros SQL
 - [x] Captura de screenshots
 - [x] Geração de logs
-- [x] Relatório técnico de erros
-- [x] Arquitetura de extratores de erro
-- [x] Organização do projeto em módulos
+- [x] Relatório de erros
+- [x] Contexto de execução configurável
+- [x] Variáveis de contexto por URL
 
-## Próximas evoluções
+## Melhorias futuras
 
-- [ ] Melhorar extração de mensagens SQL Server
-- [ ] Melhorar extração de mensagens Oracle
-- [ ] Extratores específicos para erros PHP
+- [ ] Interface gráfica para execução dos testes
+- [ ] Interface para edição dos arquivos `.ini`
+- [ ] Seleção das aplicações que serão testadas pela interface
+- [ ] Configuração visual das variáveis de contexto
+- [ ] Visualização dos resultados da execução na interface
+- [ ] Relatório HTML
+- [ ] Exportação para JSON
+- [ ] Execução paralela
 - [ ] Dashboard de resultados
-- [ ] Comparação entre execuções
-- [ ] Histórico de validações
+
+---
+
+# Interface Gráfica
+
+Uma das próximas evoluções do projeto será a criação de uma interface gráfica para facilitar a utilização do monitor.
+
+A interface deverá permitir, sem necessidade de editar arquivos manualmente:
+
+- Iniciar uma execução
+- Configurar parâmetros do monitor
+- Alterar configurações de screenshot
+- Ativar/desativar o contexto
+- Cadastrar variáveis de contexto
+- Alterar valores das variáveis
+- Selecionar aplicações para teste
+- Acompanhar o progresso da execução
+- Visualizar os resultados
+- Consultar os erros encontrados
+
+A ideia é manter os arquivos `.ini` como mecanismo de configuração interno, enquanto a interface funcionará como uma camada visual sobre essas configurações.
 
 ---
 
