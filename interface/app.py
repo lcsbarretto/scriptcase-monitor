@@ -2,8 +2,19 @@ import configparser
 import tkinter as tk
 from pathlib import Path
 from tkinter import messagebox, ttk
-
-
+import sys
+import threading
+import importlib
+# ==========================================================
+# CAMINHO RAIZ DO PROJETO
+# ==========================================================
+from pathlib import Path
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+# ==========================================================
+# IMPORTAÇÕES DO PROJETO
+# ==========================================================
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG_DIR = ROOT / "config"
 
@@ -14,21 +25,59 @@ class MonitorInterface:
         self.root = root
 
         self.root.title("ScriptCase Monitor")
-        self.root.geometry("700x650")
+        self.root.geometry("820x760")
         self.root.resizable(False, False)
+        self.root.configure(bg="#f4f6f8")
 
         self.config = configparser.ConfigParser()
         self.monitor_config = configparser.ConfigParser()
         self.context_config = configparser.ConfigParser()
 
+        self.configurar_estilo()
         self.criar_interface()
         self.carregar_configuracoes()
+
+    # ==========================================================
+    # ESTILO
+    # ==========================================================
+
+    def configurar_estilo(self):
+        style = ttk.Style()
+        try:
+            style.theme_use("clam")
+        except tk.TclError:
+            pass
+        style.configure(".", font=("Segoe UI", 10))
+        style.configure("TFrame", background="#f4f6f8")
+        style.configure("TLabel", background="#f4f6f8", foreground="#1f2937")
+        style.configure("Title.TLabel", background="#f4f6f8", foreground="#1f2937", font=("Segoe UI", 18, "bold"))
+        style.configure("Subtitle.TLabel", background="#f4f6f8", foreground="#6b7280", font=("Segoe UI", 9))
+        style.configure("Section.TLabel", background="#ffffff", foreground="#1f2937", font=("Segoe UI", 11, "bold"))
+        style.configure("Muted.TLabel", background="#ffffff", foreground="#6b7280", font=("Segoe UI", 9))
+        style.configure("TNotebook", background="#f4f6f8", borderwidth=0)
+        style.configure("TNotebook.Tab", padding=(18, 9), font=("Segoe UI", 10, "bold"))
+        style.configure("TEntry", padding=7)
+        style.configure("TCombobox", padding=6)
+        style.configure("Primary.TButton", font=("Segoe UI", 10, "bold"), padding=(18, 9))
+        style.configure("Secondary.TButton", font=("Segoe UI", 10), padding=(14, 8))
+        style.configure("Horizontal.TProgressbar", thickness=12)
 
     # ==========================================================
     # INTERFACE PRINCIPAL
     # ==========================================================
 
     def criar_interface(self):
+
+        header = ttk.Frame(self.root)
+        header.pack(fill="x", padx=28, pady=(22, 6))
+
+        titulo = ttk.Frame(header)
+        titulo.pack(side="left")
+        ttk.Label(titulo, text="ScriptCase Monitor", style="Title.TLabel").pack(anchor="w")
+        ttk.Label(titulo, text="Validação e monitoramento de aplicações ScriptCase", style="Subtitle.TLabel").pack(anchor="w", pady=(2, 0))
+
+        self.status_label = ttk.Label(header, text="● Pronto", foreground="#15803d", background="#f4f6f8", font=("Segoe UI", 9, "bold"))
+        self.status_label.pack(side="right", pady=8)
 
         notebook = ttk.Notebook(self.root)
         notebook.pack(
@@ -44,17 +93,17 @@ class MonitorInterface:
 
         notebook.add(
             self.aba_ambiente,
-            text="Ambiente"
+            text="  Ambiente  "
         )
 
         notebook.add(
             self.aba_monitor,
-            text="Monitor"
+            text="  Monitor  "
         )
 
         notebook.add(
             self.aba_contexto,
-            text="Contexto"
+            text="  Contexto  "
         )
 
         self.criar_aba_ambiente()
@@ -71,18 +120,65 @@ class MonitorInterface:
         ttk.Button(
             botoes,
             text="Salvar configurações",
+            style="Secondary.TButton",
             command=self.salvar_configuracoes
         ).pack(
             side="left"
         )
 
-        ttk.Button(
+        self.botao_iniciar = ttk.Button(
             botoes,
-            text="Iniciar teste",
+            text="▶  Iniciar teste",
+            style="Primary.TButton",
             command=self.iniciar_teste
-        ).pack(
+        )
+
+        self.botao_iniciar.pack(
             side="right"
         )
+
+        # ==========================================================
+        # ÁREA DE PROGRESSO
+        # ==========================================================
+
+        self.progress_frame = tk.Frame(self.root, bg="#ffffff", highlightbackground="#d9dee5", highlightthickness=1)
+
+        self.progress_frame.pack(
+            fill="x",
+            padx=15,
+            pady=(0, 10)
+        )
+
+        self.progress_label = ttk.Label(
+            self.progress_frame,
+            text="Aguardando execução..."
+        )
+
+        self.progress_label.pack(
+            anchor="w"
+        )
+
+        self.progress_bar = ttk.Progressbar(
+            self.progress_frame,
+            orient="horizontal",
+            mode="determinate",
+            maximum=100
+        )
+
+        self.progress_bar.pack(
+            fill="x",
+            pady=5
+        )
+
+        self.progress_info = ttk.Label(
+            self.progress_frame,
+            text="0 / 0 aplicações"
+        )
+
+        self.progress_info.pack(
+            anchor="w"
+        )
+
 
     # ==========================================================
     # ABA AMBIENTE
@@ -386,9 +482,9 @@ class MonitorInterface:
         )
 
         self.context_variables = tk.Text(
-            frame,
-            height=12,
-            width=70
+            frame, height=12, width=70, font=("Consolas", 9),
+            bg="#f8fafc", fg="#6b7280", relief="solid", bd=1,
+            padx=10, pady=8, state="disabled"
         )
 
         self.context_variables.pack(
@@ -632,6 +728,8 @@ class MonitorInterface:
                 text=f"Modo: {mode}"
             )
 
+        self.context_variables.configure(state="normal")
+
         self.context_variables.delete(
             "1.0",
             tk.END
@@ -841,17 +939,168 @@ class MonitorInterface:
             )
 
     # ==========================================================
-    # EXECUÇÃO
+    # EXECUTAR TESTE
     # ==========================================================
-
     def iniciar_teste(self):
 
-        self.salvar_configuracoes()
+        try:
+
+            self.salvar_config()
+            self.salvar_monitor_config()
+            self.salvar_contexto()
+
+        except Exception as e:
+
+            messagebox.showerror(
+                "Erro",
+                f"Não foi possível salvar as configurações.\n\n{e}"
+            )
+
+            return
+
+        self.botao_iniciar.config(
+            state="disabled"
+        )
+
+        self.progress_bar["value"] = 0
+
+        self.progress_label.config(
+            text="Iniciando monitor..."
+        )
+
+        self.progress_info.config(
+            text="Aguardando aplicações..."
+        )
+
+        thread = threading.Thread(
+            target=self.executar_teste_thread,
+            daemon=True
+        )
+
+        thread.start()
+        
+    def executar_teste_thread(self):
+
+        try:
+
+            from main import executar_monitor
+
+            resultado = executar_monitor(
+                progresso_callback=self.atualizar_progresso
+            )
+
+            self.root.after(
+                0,
+                lambda: self.finalizar_teste(resultado)
+            )
+
+        except Exception as e:
+
+            self.root.after(
+                0,
+                lambda: self.erro_teste(str(e))
+            )
+
+    def atualizar_progresso(
+        self,
+        atual,
+        total,
+        aplicacao,
+        ok,
+        erro
+    ):
+
+        self.root.after(
+            0,
+            lambda: self._atualizar_interface_progresso(
+                atual,
+                total,
+                aplicacao,
+                ok,
+                erro
+            )
+        )
+
+    def _atualizar_interface_progresso(
+        self,
+        atual,
+        total,
+        aplicacao,
+        ok,
+        erro
+    ):
+
+        if total <= 0:
+            percentual = 0
+        else:
+            percentual = (
+                atual / total
+            ) * 100
+
+        self.progress_bar["value"] = percentual
+
+        if aplicacao:
+
+            self.progress_label.config(
+                text=f"Testando: {aplicacao}"
+            )
+
+        self.progress_info.config(
+            text=(
+                f"{atual} / {total} aplicações "
+                f"| OK: {ok} "
+                f"| Erros: {erro}"
+            )
+        )
+
+    def finalizar_teste(self, resultado):
+
+        self.progress_bar["value"] = 100
+
+        self.progress_label.config(
+            text="Teste concluído!"
+        )
+
+        self.progress_info.config(
+            text=(
+                f"Total: {resultado['total']} "
+                f"| OK: {resultado['ok']} "
+                f"| Erros: {resultado['erro']}"
+            )
+        )
+
+        self.botao_iniciar.config(
+            state="normal"
+        )
 
         messagebox.showinfo(
-            "Teste",
-            "A execução do monitor será conectada nesta etapa."
+            "Teste concluído",
+            (
+                "A execução foi concluída.\n\n"
+                f"Total de aplicações: {resultado['total']}\n"
+                f"Sucessos: {resultado['ok']}\n"
+                f"Erros: {resultado['erro']}"
+            )
         )
+
+
+    def erro_teste(self, erro):
+
+        self.botao_iniciar.config(
+            state="normal"
+        )
+
+        self.progress_label.config(
+            text="Erro durante a execução."
+        )
+
+        messagebox.showerror(
+            "Erro",
+            f"Ocorreu um erro durante a execução.\n\n{erro}"
+        )
+
+
+
 
 
 if __name__ == "__main__":

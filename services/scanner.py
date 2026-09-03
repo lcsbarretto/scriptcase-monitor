@@ -1,11 +1,7 @@
 from pathlib import Path
 
-from config.monitor_config import (
-    FILTROS,
-    MAX_APPS,
-    ONLY_ENABLED,
-    ORDER
-)
+import config.monitor_config as monitor_config
+
 
 IGNORAR = {
     "_lib",
@@ -18,6 +14,7 @@ IGNORAR = {
     "third"
 }
 
+
 PREFIXOS = (
     "frm",
     "cons",
@@ -26,6 +23,20 @@ PREFIXOS = (
 
 
 def listar_aplicacoes(app_path):
+
+    # Obtém os valores atuais da configuração.
+    # Isso evita manter MAX_APPS, ONLY_ENABLED e
+    # FILTROS congelados na memória.
+    filtros = monitor_config.FILTROS
+    max_apps = monitor_config.MAX_APPS
+    only_enabled = monitor_config.ONLY_ENABLED
+    order = monitor_config.ORDER
+
+    print(f"[DEBUG] APP_PATH: {app_path}")
+    print(f"[DEBUG] MAX_APPS: {max_apps}")
+    print(f"[DEBUG] ONLY_ENABLED: {only_enabled}")
+    print(f"[DEBUG] ORDER: {order}")
+    print(f"[DEBUG] FILTROS: {filtros}")
 
     aplicacoes = []
 
@@ -40,24 +51,43 @@ def listar_aplicacoes(app_path):
         if not pasta.name.startswith(PREFIXOS):
             continue
 
-        arquivo_principal = pasta / f"{pasta.name}.php"
+        arquivo_principal = (
+            pasta / f"{pasta.name}.php"
+        )
 
         if not arquivo_principal.exists():
             continue
 
-        if ONLY_ENABLED:
+        # Se ONLY_ENABLED estiver desativado,
+        # ignora completamente os filtros.
+        if only_enabled:
 
-            if not FILTROS.get(pasta.name, False):
+            if not filtros.get(
+                pasta.name,
+                False
+            ):
                 continue
 
-        aplicacoes.append(pasta.name)
+        aplicacoes.append(
+            pasta.name
+        )
+
+    print(
+        f"[DEBUG] Aplicações antes da ordenação: "
+        f"{len(aplicacoes)}"
+    )
 
     aplicacoes.sort()
 
-    if ORDER == "DESC":
+    if order == "DESC":
         aplicacoes.reverse()
 
-    if MAX_APPS > 0:
-        aplicacoes = aplicacoes[:MAX_APPS]
+
+    if max_apps > 0:
+
+        aplicacoes = aplicacoes[
+            :max_apps
+        ]
+
 
     return aplicacoes
