@@ -1,10 +1,9 @@
 from configparser import ConfigParser
-from pathlib import Path
+
 from utils.paths import CONFIG_DIR
 
-BASE_DIR = Path(__file__).resolve().parent
 
-CONFIG_FILE = BASE_DIR / "monitor.ini"
+CONFIG_FILE = CONFIG_DIR / "monitor.ini"
 
 
 def carregar_configuracao():

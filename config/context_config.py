@@ -1,11 +1,12 @@
 from configparser import ConfigParser
-from pathlib import Path
+
+from utils.paths import CONFIG_DIR
 
 
-BASE_DIR = Path(__file__).resolve().parent
+CONFIG_FILE = CONFIG_DIR / "context.ini"
 
 config = ConfigParser()
-config.read(BASE_DIR / "context.ini", encoding="utf-8")
+config.read(CONFIG_FILE, encoding="utf-8")
 
 
 CONTEXT_ENABLED = config.getboolean(
@@ -24,7 +25,5 @@ CONTEXT_MODE = config.get(
 CONTEXT_VARIABLES = {}
 
 if config.has_section("VARIABLES"):
-
     for nome, valor in config.items("VARIABLES"):
-
         CONTEXT_VARIABLES[nome] = valor

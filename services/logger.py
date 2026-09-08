@@ -1,8 +1,6 @@
 from datetime import datetime
 
-from services.artifacts import LOG_DIR
-
-LOG_FILE = LOG_DIR / "monitor.log"
+from services import artifacts
 
 
 def log(texto):
@@ -13,6 +11,15 @@ def log(texto):
 
     print(linha)
 
-    with open(LOG_FILE, "a", encoding="utf8") as f:
+    if artifacts.LOG_DIR is None:
+        artifacts.iniciar_execucao()
+
+    log_file = artifacts.LOG_DIR / "tester.log"
+
+    with open(
+        log_file,
+        "a",
+        encoding="utf-8"
+    ) as f:
 
         f.write(linha + "\n")

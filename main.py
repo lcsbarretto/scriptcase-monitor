@@ -1,13 +1,20 @@
-from services.login import realizar_login
-from services.checker import testar_aplicacao
 from services.logger import log
 from services.report import salvar_relatorio
-
 import importlib
 
 
 def executar_monitor(progresso_callback=None):
 
+    # ==========================================================
+    # INICIA UMA NOVA EXECUÇÃO
+    # ==========================================================
+
+    from services.artifacts import iniciar_execucao
+    from services import report
+
+    iniciar_execucao()
+    report.ERROS.clear()
+    report.SUCESSOS.clear()
     # ==========================================================
     # RECARREGA AS CONFIGURAÇÕES ATUAIS
     # ==========================================================
@@ -15,8 +22,11 @@ def executar_monitor(progresso_callback=None):
     import config.config
     import config.monitor_config
     import config.context_config
+
+    import services.login
     import services.scanner
     import services.context_manager
+    import services.checker
 
     importlib.reload(
         config.config
@@ -30,8 +40,14 @@ def executar_monitor(progresso_callback=None):
         config.context_config
     )
 
-    # Os serviços que mantêm referências das configurações
-    # precisam ser atualizados.
+    # ==========================================================
+    # RECARREGA OS SERVIÇOS
+    # ==========================================================
+
+    importlib.reload(
+        services.login
+    )
+
     importlib.reload(
         services.scanner
     )
@@ -40,32 +56,50 @@ def executar_monitor(progresso_callback=None):
         services.context_manager
     )
 
-    # Importa as configurações somente depois do reload
+    importlib.reload(
+        services.checker
+    )
+
+    # ==========================================================
+    # IMPORTA AS CONFIGURAÇÕES ATUALIZADAS
+    # ==========================================================
+
     from config.config import APP_PATH
 
-    # Importa os serviços atualizados
+    # ==========================================================
+    # IMPORTA OS SERVIÇOS ATUALIZADOS
+    # ==========================================================
+
+    from services.login import realizar_login
     from services.scanner import listar_aplicacoes
     from services.context_manager import preparar_contexto
+    from services.checker import testar_aplicacao
 
     # ==========================================================
     # INÍCIO DA EXECUÇÃO
     # ==========================================================
 
     log("=" * 60)
-    log("INICIANDO SCRIPTCASE MONITOR")
+    log("INICIANDO SCRIPTCASE TESTER")
     log("=" * 60)
 
     p, browser, context, page = realizar_login()
 
     try:
 
-        # Prepara o contexto
+        # ======================================================
+        # PREPARA O CONTEXTO
+        # ======================================================
+
         preparar_contexto(
             page,
             context
         )
 
-        # Descobre as aplicações
+        # ======================================================
+        # DESCOBRE AS APLICAÇÕES
+        # ======================================================
+
         apps = listar_aplicacoes(
             APP_PATH
         )
@@ -76,10 +110,13 @@ def executar_monitor(progresso_callback=None):
         erro = 0
 
         log(
-            f"Foram encontradas {total} aplicações.\n"
+            f"Foram encontradas {total} aplicações."
         )
 
-        # Informa início do progresso
+        # ======================================================
+        # INFORMA INÍCIO DO PROGRESSO
+        # ======================================================
+
         if progresso_callback:
 
             progresso_callback(
@@ -90,7 +127,10 @@ def executar_monitor(progresso_callback=None):
                 erro=erro
             )
 
-        # Testa cada aplicação
+        # ======================================================
+        # TESTA CADA APLICAÇÃO
+        # ======================================================
+
         for indice, app in enumerate(
             apps,
             start=1
@@ -106,7 +146,10 @@ def executar_monitor(progresso_callback=None):
             else:
                 erro += 1
 
-            # Atualiza progresso
+            # ==================================================
+            # ATUALIZA PROGRESSO
+            # ==================================================
+
             if progresso_callback:
 
                 progresso_callback(
@@ -117,12 +160,14 @@ def executar_monitor(progresso_callback=None):
                     erro=erro
                 )
 
-        log("")
+        # ======================================================
+        # RESUMO
+        # ======================================================
 
+        log("")
         log("=" * 60)
         log("RESUMO")
         log("=" * 60)
-
         log(f"Total : {total}")
         log(f"OK    : {ok}")
         log(f"Erro  : {erro}")
@@ -137,7 +182,9 @@ def executar_monitor(progresso_callback=None):
 
     except Exception as e:
 
-        log(f"ERRO: {e}")
+        log(
+            f"ERRO: {e}"
+        )
 
         return {
             "total": 0,
@@ -151,7 +198,9 @@ def executar_monitor(progresso_callback=None):
         browser.close()
         p.stop()
 
-        log("Navegador encerrado.")
+        log(
+            "Navegador encerrado."
+        )
 
 
 if __name__ == "__main__":
