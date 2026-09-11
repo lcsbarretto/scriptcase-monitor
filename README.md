@@ -6,6 +6,16 @@ O projeto realiza o login no ambiente, identifica as aplicações disponíveis, 
 
 O objetivo é facilitar a identificação de aplicações com problemas após atualizações, deploys ou manutenções, gerando logs, screenshots e um relatório consolidado dos erros encontrados.
 
+<h1 align="center">Demonstração</h1>
+
+<p align="center">
+  <img src="./demonstracao.gif" width="800">
+</p>
+
+<p align="center">
+  Execução de testes rodando acima.
+</p>
+
 ---
 
 ## Funcionalidades
